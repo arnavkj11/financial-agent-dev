@@ -7,3 +7,11 @@ langgraph
 pypdf
 python-multipart
 langchain_openai
+sqlalchemy
+aiosqlite
+chromadb
+python-jose[cryptography] 
+passlib
+PyJWT[crypto]
+bcrypt==4.0.1
+pydantic[email]

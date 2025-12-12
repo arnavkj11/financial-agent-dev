@@ -1,8 +1,9 @@
-import shutil
 import os
-from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException
-
+import shutil
+from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException, Depends
 from app.services.pdf import process_document_task
+from app.api.deps import get_current_user
+from app.models.sql import User
 
 router = APIRouter()
 
@@ -12,7 +13,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @router.post("/ingest")
 async def ingest_document(
     background_tasks: BackgroundTasks,
-    file: UploadFile = File(...)
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user)
 ):
     """
     Upload a PDF document for ingestion.

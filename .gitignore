@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Financial Agent
+financial_agent.db
+
+# Chroma DB
+/chroma_db/
