@@ -74,14 +74,11 @@ def should_continue(state: AgentState) -> Literal["tools", "__end__"]:
 # 4. Build Graph
 workflow = StateGraph(AgentState)
 
-# Add Nodes
 workflow.add_node("agent", agent_node)
 workflow.add_node("tools", ToolNode([query_sql_tool, vector_search_tool]))
 
-# Add Edges
 workflow.set_entry_point("agent")
 workflow.add_conditional_edges("agent", should_continue)
 workflow.add_edge("tools", "agent")
 
-# Compile
 app_graph = workflow.compile()

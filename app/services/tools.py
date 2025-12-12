@@ -4,7 +4,7 @@ from app.core.vector import get_transaction_collection
 
 async def run_sql_query(query: str):
     """
-    Executes a read-only SQL query against the database.
+    This tool executes a read-only SQL query against the database.
     Useful for aggregation capability (SUM, COUNT, AVG, etc.)
     """
     # Basic security check
@@ -24,7 +24,7 @@ async def run_sql_query(query: str):
 
 def search_vector_db(query: str, n_results: int = 5):
     """
-    Searches the vector database for transaction descriptions.
+    This tool searches the vector database for transaction descriptions.
     Useful for finding specific merchants or categories.
     """
     try:
@@ -40,7 +40,7 @@ def search_vector_db(query: str, n_results: int = 5):
 
 def get_db_schema():
     """
-    Returns the schema info for the LLM to write SQL.
+    This tool returns the schema info for the LLM to write SQL.
     """
     return """
     Table: transactions
