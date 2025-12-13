@@ -33,7 +33,7 @@ async def ingest_document(
         raise HTTPException(status_code=500, detail=f"Could not save file: {e}")
 
     # Trigger Background Task
-    background_tasks.add_task(process_document_task, file_path)
+    background_tasks.add_task(process_document_task, file_path, current_user.id)
 
     return {
         "message": "File uploaded successfully. Processing started.",

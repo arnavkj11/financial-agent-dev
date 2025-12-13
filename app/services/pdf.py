@@ -21,7 +21,7 @@ def extract_text(file_path: str) -> str:
         print(f"Error reading PDF: {e}")
         return ""
 
-async def process_document_task(file_path: str):
+async def process_document_task(file_path: str, user_id: int):
     """
     Extraction + Persistence Worker.
     """
@@ -33,7 +33,8 @@ async def process_document_task(file_path: str):
         new_doc = Document(
             filename=filename,
             upload_date=datetime.now(),
-            status="processing"
+            status="processing",
+            user_id=user_id
         )
         db.add(new_doc)
         await db.commit()
