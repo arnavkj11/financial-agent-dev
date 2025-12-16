@@ -47,40 +47,40 @@ async def process_document_task(file_path: str, user_id: int):
             # 3. Clean Data (LLM)
             structured_data = clean_data_with_llm(raw_text)
             
-            # 4. Save Transactions
-            print(f"--- [Worker] Saving {len(structured_data.transactions)} transactions to DB ---")
+            # 4. Save Transactions & Prepare Vector Data
+            print(f"--- [Worker] Saving {len(structured_data.transactions)} items to DB & Vector Store ---")
             
-            for tx in structured_data.transactions:
+            from app.core.vector import get_transaction_collection
+            collection = get_transaction_collection()
+
+            ids = []
+            documents = []
+            metadatas = []
+
+            for i, tx in enumerate(structured_data.transactions):
+                # Unique ID for vector store
+                vec_id = f"{new_doc.id}_{i}"
+                
                 # Robust date parsing
                 try:
                     tx_date = datetime.strptime(tx.date, "%Y-%m-%d").date()
                 except ValueError:
                     tx_date = date.today()
 
+                # SQL Record
                 db_tx = Transaction(
                     document_id=new_doc.id,
                     date=tx_date,
                     merchant=tx.merchant,
                     amount=tx.amount,
                     currency=tx.currency,
-                    category=tx.category
+                    category=tx.category,
+                    description_embedding_id=vec_id # Linked!
                 )
                 db.add(db_tx)
-            
-            # 5. Vector Indexing (Semantic Search)
-            print(f"--- [Worker] Indexing {len(structured_data.transactions)} items in Vector DB ---")
-            from app.core.vector import get_transaction_collection
-            collection = get_transaction_collection()
-            
-            ids = []
-            documents = []
-            metadatas = []
-            
-            for i, tx in enumerate(structured_data.transactions):
-                # Unique ID for vector store
-                vec_id = f"{new_doc.id}_{i}"
-                ids.append(vec_id)
                 
+                # Vector Data
+                ids.append(vec_id)
                 # The "Text" we search against: "Starbucks (Food) on 2024-01-01"
                 documents.append(f"{tx.merchant} ({tx.category}) on {tx.date}. Amount: {tx.amount} {tx.currency}")
                 
@@ -93,6 +93,7 @@ async def process_document_task(file_path: str, user_id: int):
                     "doc_id": new_doc.id
                 })
 
+            # Batch Insert to Vector DB
             if ids:
                 collection.add(ids=ids, documents=documents, metadatas=metadatas)
 

@@ -8,7 +8,7 @@ from langgraph.prebuilt import ToolNode
 from app.core.config import settings
 from app.services.tools import run_sql_query, search_vector_db, get_db_schema
 
-# 1. Define Tools for LangChain
+# 1. Tools for LangChain
 @tool
 async def query_sql_tool(query: str):
     """
@@ -26,16 +26,13 @@ def vector_search_tool(query: str):
     """
     return search_vector_db(query)
 
-# 2. Define State
+# 2. State
 class AgentState(TypedDict):
-    # The 'add_messages' reducer ensures valid history is preserved
     messages: Annotated[list, add_messages]
 
-# 3. Define Nodes
+# 3. Nodes (Brain)
 def agent_node(state: AgentState):
-    """
-    The Brain. Decides which tool to call.
-    """
+
     messages = state["messages"]
     
     # System Prompt with Schema Context
@@ -49,7 +46,8 @@ def agent_node(state: AgentState):
     GUIDELINES:
     1. For aggregation (Total spent, Count, Average), write a SQL query and use 'query_sql_tool'.
     2. For searching specific items (Where did I eat?, Shopping), use 'vector_search_tool'.
-    3. Always answer in a helpful, concise manner.
+    3. For financial analysis, use 'query_sql_tool' to get the data and then use 'vector_search_tool' to get the context and answer after analysing the data.
+    4. Always answer in a helpful, concise manner.
     """)
     
     # Combine system message with history. 

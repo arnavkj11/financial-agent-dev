@@ -211,3 +211,6 @@ financial_agent.db
 
 # Chroma DB
 /chroma_db/
+
+#Claude
+CLAUDE.md 
