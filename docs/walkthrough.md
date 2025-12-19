@@ -87,6 +87,8 @@ Use `POST /api/v1/chat/message`.
 **Examples**:
 *   *Quantitative*: "How much did I spend on Food in January?"
 *   *Semantic*: "Did I subscribe to any streaming services?"
+*   *Budgeting*: "Set a budget of $500 for Dining." -> "How is my dining budget?"
+*   *Diagnostics*: "Analyze my spending habits." or "Where can I save money?"
 *   *Complex*: "Who is my biggest expense?"
 
 ## 5. Key Code Files

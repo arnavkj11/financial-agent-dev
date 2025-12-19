@@ -107,6 +107,68 @@ async def check_budget_status():
     except Exception as e:
         return f"Budget Tool Error: {e}"
 
+async def diagnose_spending():
+    """
+    Analyzes financial data to find patterns:
+    1. High Frequency Merchants (The 'Latte Factor').
+    2. Potential Subscriptions (Same amount > 2 times).
+    3. Largest Single Expenses.
+    """
+    report = "--- Financial Diagnostics Report ---\n"
+    
+    async with SessionLocal() as session:
+        # 1. High Frequency (Latte Factor)
+        # Merchants visited more than 4 times
+        freq_query = """
+        SELECT merchant, COUNT(*) as cnt, SUM(amount) as total
+        FROM transactions 
+        GROUP BY merchant 
+        HAVING cnt > 4
+        ORDER BY cnt DESC
+        LIMIT 5
+        """
+        result = await session.execute(text(freq_query))
+        rows = result.fetchall()
+        if rows:
+            report += "\n[High Frequency Habits]\n"
+            for row in rows:
+                report += f"- {row.merchant}: {row.cnt} times (Total: ${row.total})\n"
+
+        # 2. Potential Subscriptions
+        # Same Amount, Same Merchant, appearing more than once (simple heuristic)
+        # Excluding very small amounts (< $5) to avoid noise like coffee
+        sub_query = """
+        SELECT merchant, amount, COUNT(*) as cnt
+        FROM transactions
+        WHERE amount > 5
+        GROUP BY merchant, amount
+        HAVING cnt > 1
+        ORDER BY cnt DESC
+        LIMIT 5
+        """
+        result = await session.execute(text(sub_query))
+        rows = result.fetchall()
+        if rows:
+            report += "\n[Potential Subscriptions / Recurring]\n"
+            for row in rows:
+                report += f"- {row.merchant}: ${row.amount} (seen {row.cnt} times)\n"
+        
+        # 3. Top Spenders (Outliers)
+        top_query = """
+        SELECT merchant, amount, date, category
+        FROM transactions
+        ORDER BY amount DESC
+        LIMIT 3
+        """
+        result = await session.execute(text(top_query))
+        rows = result.fetchall()
+        if rows:
+            report += "\n[Largest Single Expenses]\n"
+            for row in rows:
+                report += f"- {row.merchant}: ${row.amount} ({row.category}) on {row.date}\n"
+
+    return report
+
 def search_vector_db(query: str, n_results: int = 5):
     """
     This tool searches the vector database for transaction descriptions.
