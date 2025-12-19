@@ -12,6 +12,17 @@ class User(Base):
     hashed_password = Column(String)
     
     documents = relationship("Document", back_populates="user")
+    budgets = relationship("Budget", back_populates="user")
+
+class Budget(Base):
+    __tablename__ = "budgets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    category = Column(String)
+    amount = Column(Float)
+
+    user = relationship("User", back_populates="budgets")
 
 class Document(Base):
     __tablename__ = "documents"

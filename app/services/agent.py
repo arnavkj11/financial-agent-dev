@@ -6,7 +6,7 @@ from langgraph.graph import StateGraph, END, add_messages
 from langgraph.prebuilt import ToolNode
 
 from app.core.config import settings
-from app.services.tools import run_sql_query, search_vector_db, get_db_schema
+from app.services.tools import run_sql_query, search_vector_db, get_db_schema, check_budget_status
 
 # 1. Tools for LangChain
 @tool
@@ -25,6 +25,14 @@ def vector_search_tool(query: str):
     Example: "coffee shops" -> returns Starbucks, Dunkin transactions.
     """
     return search_vector_db(query)
+
+@tool
+async def budget_tool():
+    """
+    Check the status of budgets (Spending vs Limit).
+    Use this when the user asks about "budgets", "limits", or "overspending".
+    """
+    return await check_budget_status()
 
 # 2. State
 class AgentState(TypedDict):
@@ -56,7 +64,7 @@ def agent_node(state: AgentState):
         messages = [system_message] + messages
     
     llm = ChatOpenAI(model="gpt-4o", api_key=settings.OPENAI_API_KEY)
-    llm_with_tools = llm.bind_tools([query_sql_tool, vector_search_tool])
+    llm_with_tools = llm.bind_tools([query_sql_tool, vector_search_tool, budget_tool])
     
     response = llm_with_tools.invoke(messages)
     return {"messages": [response]}
@@ -73,7 +81,7 @@ def should_continue(state: AgentState) -> Literal["tools", "__end__"]:
 workflow = StateGraph(AgentState)
 
 workflow.add_node("agent", agent_node)
-workflow.add_node("tools", ToolNode([query_sql_tool, vector_search_tool]))
+workflow.add_node("tools", ToolNode([query_sql_tool, vector_search_tool, budget_tool]))
 
 workflow.set_entry_point("agent")
 workflow.add_conditional_edges("agent", should_continue)

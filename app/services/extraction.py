@@ -22,7 +22,7 @@ def clean_data_with_llm(raw_text: str) -> ExtractedFinancialData:
                    "Extract financial transactions from the following raw text. "
                    "Standardize dates to YYYY-MM-DD. "
                    "IMPORTANT: Infer the category for each transaction based on the merchant name "
-                   "(e.g., 'Groceries', 'Dining', 'Transport', 'Utilities', 'Entertainment', 'Shopping'). "
+                   "(e.g., 'Groceries', 'Dining', 'Utilities', 'Entertainment', 'Shopping', 'Gas', 'Insurance', 'Health', 'Education', 'Subscription', 'Travel', 'Other'). "
                    "Do not leave category as null."),
         ("user", "Raw Text:\n{raw_text}")
     ])
