@@ -24,8 +24,9 @@ async def chat_endpoint(
     try:
         # Invoke the LangGraph agent
         # The input is the initial state: a list of messages
-        inputs = {"messages": [HumanMessage(content=request.message)]}
-        
+        inputs = {"messages": f" user_id: {current_user.id} ; current_query: {HumanMessage(content=request.message)}"}
+        print(request.message)
+        print("current_user", current_user.id)
         # We use .invoke() to run the graph until the end
         result = await app_graph.ainvoke(inputs)
         

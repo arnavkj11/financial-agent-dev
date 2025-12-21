@@ -7,7 +7,7 @@ from app.models.sql import User, Document, Transaction
 async def init_models():
     # 1. Reset SQL
     async with engine.begin() as conn:
-        # await conn.run_sync(Base.metadata.drop_all) # Uncomment to drop SQL tables
+        #await conn.run_sync(Base.metadata.drop_all) # Uncomment to drop SQL tables
         await conn.run_sync(Base.metadata.create_all)
     print("SQL Tables created successfully.")
 

@@ -41,6 +41,7 @@ class Transaction(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey("documents.id"))
+    user_id = Column(Integer, ForeignKey("users.id")) # Denormalized for security access
     
     date = Column(Date)
     merchant = Column(String)

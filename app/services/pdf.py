@@ -70,6 +70,7 @@ async def process_document_task(file_path: str, user_id: int):
                 # SQL Record
                 db_tx = Transaction(
                     document_id=new_doc.id,
+                    user_id=user_id, # Added for RLS
                     date=tx_date,
                     merchant=tx.merchant,
                     amount=tx.amount,
@@ -90,7 +91,8 @@ async def process_document_task(file_path: str, user_id: int):
                     "category": tx.category or "Unknown",
                     "amount": tx.amount,
                     "date": tx.date, # String format YYYY-MM-DD
-                    "doc_id": new_doc.id
+                    "doc_id": new_doc.id,
+                    "user_id": user_id # Required for RLS
                 })
 
             # Batch Insert to Vector DB
