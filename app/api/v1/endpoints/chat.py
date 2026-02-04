@@ -4,6 +4,7 @@ from langchain_core.messages import HumanMessage
 from app.services.agent import app_graph
 from app.api.deps import get_current_user
 from app.models.sql import User
+from app.core.context import user_id_context
 
 router = APIRouter()
 
@@ -22,9 +23,12 @@ async def chat_endpoint(
     Interact with the Financial Agent.
     """
     try:
+        # Set user context for thread-safe user isolation
+        user_id_context.set(current_user.id)
+
         # Invoke the LangGraph agent
         # The input is the initial state: a list of messages
-        inputs = {"messages": f" user_id: {current_user.id} ; current_query: {HumanMessage(content=request.message)}"}
+        inputs = {"messages": [HumanMessage(content=request.message)]}
         print(request.message)
         print("current_user", current_user.id)
         # We use .invoke() to run the graph until the end

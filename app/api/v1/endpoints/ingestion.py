@@ -1,5 +1,6 @@
 import os
 import shutil
+import uuid
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks, HTTPException, Depends
 from app.services.pdf import process_document_task
 from app.api.deps import get_current_user
@@ -23,7 +24,9 @@ async def ingest_document(
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are supported")
 
-    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    # Use UUID to prevent filename collisions
+    unique_filename = f"{uuid.uuid4()}_{file.filename}"
+    file_path = os.path.join(UPLOAD_DIR, unique_filename)
     
     # Save file to disk
     try:

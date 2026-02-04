@@ -69,9 +69,9 @@ async def get_budget_status(
         
         for budget in budgets:
             # 2. Sum transactions for this category (User specific)
-            # Join Transaction -> Document -> User
-            stmt = select(func.sum(Transaction.amount)).join(Document).where(
-                Document.user_id == current_user.id,
+            # Use denormalized user_id for direct filtering (more efficient)
+            stmt = select(func.sum(Transaction.amount)).where(
+                Transaction.user_id == current_user.id,
                 Transaction.category == budget.category
             )
             spent_result = await session.execute(stmt)
